@@ -1,0 +1,48 @@
+Stored Procedure Example:
+
+The sales department at Groceryville Store would like various sales totals based on a few different factors for the year 2017. 
+
+Below is a stored procedure that can look up total sales for the year based on combinations of customer’s hometown and product purchased:
+
+CREATE PROC SalesFactors2017
+	@Totals2017 INT OUTPUT,
+	@ProductToCheck VarChar(30),
+	@HometownToCheck Varchar(30)
+AS
+SELECT @Totals2017 = SUM(Price)
+	FROM Products pds JOIN Purchases pch on pds.Product = pch.Product
+	JOIN Customers cus on pch.Customer = cus.Customer
+		WHERE  pds.Product = @ProductToCheck 
+AND cus.HomeTown = @HometownToCheck
+			AND (pch.PurchaseDate >= '2017-01-01' 
+AND pch.PurchaseDate <= '2017-12-31');
+
+
+In the EXEC command that calls the stored procedure, the values ‘Raleigh’ and ‘Apple’ can be changed as needed to search for additional data:
+			
+DECLARE @MyTotals2017 SmallMoney;
+EXEC SalesFactors2017 @MyTotals2017 OUTPUT,'Apple','Raleigh';
+
+
+Blow is the code I used to create the tables in SQL Server:
+
+CREATE TABLE Customers
+(Customer varchar(40) NOT NULL,
+ HomeTown varchar(20) NOT NULL,);
+INSERT into Customers
+VALUES ('Dave', 'Cary'),('Jan', 'Durham'),('Fred', 'Raleigh'),('Mary','Raleigh'),('Glen','Durham');
+
+CREATE TABLE Purchases
+(Customer varchar(40) NOT NULL, 
+Product varchar(30) NOT NULL,
+PurchaseDate date NOT NULL);
+INSERT into Purchases
+VALUES ('Dave','Soup','2019-01-25'),('Fred','Soup','2018-01-27'),('Mary','Apple','2014-06-25'),
+('Glen','Apple','2017-01-02'),('Glen','Ice Cream','2018-02-06'),('Jan','Ice Cream','2015-04-19'),
+('Mary','Apple','2019-02-20');
+
+CREATE TABLE Products
+(Product varchar(30) NOT NULL,
+Price smallmoney NOT NULL,);
+INSERT into Products
+VALUES ('Soup', 3.00),('Apple',1.00),(Ice Cream, 4.00);
